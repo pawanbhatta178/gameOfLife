@@ -1,9 +1,21 @@
 import React from 'react';
-import { Canvas } from './Containers/Canvas';
+import { Grid, CellData } from './Containers/Grid';
+
+
+
+const gridData: [CellData] = [
+  {
+    col: 0,
+    row: 0,
+    color:"red"
+  }
+]
+
+
 function App() {
   return (
     <div className="">
-     <Canvas></Canvas>
+      <Grid gridData={gridData }/>
     </div>
   );
 }
