@@ -3,19 +3,15 @@ import { Grid, CellData } from './Containers/Grid';
 
 
 
-const gridData: [CellData] = [
-  {
-    col: 0,
-    row: 0,
-    color:"red"
-  }
+const Data: CellData[] = [
+  {row:0,col:0,alive:true},
+  {row:0,col:1, alive:false}
 ]
-
 
 function App() {
   return (
     <div className="">
-      <Grid gridData={gridData }/>
+      <Grid gridData={Data} numRows={9} numCols={9 }/>
     </div>
   );
 }
