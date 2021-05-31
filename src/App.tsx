@@ -1,12 +1,12 @@
-import React, {useReducer, useState} from 'react';
+import React, {useReducer, useState, useEffect} from 'react';
 import { Grid, RowData  } from './Containers/Grid';
 import * as _ from "lodash";
 
 
  type Action =
    | { type: 'toggle_cell', col: number, row: number }
-   | { type: 'kill' }
-   | { type: 'born' }
+   | { type: 'next_generation' }
+   | {type:"alter_grid", col:number, row:number}
 
 
 let Data: RowData[] = [
@@ -14,66 +14,40 @@ let Data: RowData[] = [
     id:"0",
     payload: [
       { col: 0, row: 0, alive: true },
-      { row: 0, col: 1, alive: false },
-      { row: 0, col: 2, alive: false },
-      { row: 0, col: 3, alive: false },
-      { row: 0, col: 4, alive: false }
-
+      { row: 0, col: 1, alive: false }
     ]
   },
   {
     id:"1",
     payload: [
       { row: 1, col: 0, alive: true },
-      { row: 1, col: 1, alive: false },
-      { row: 1, col: 2, alive: false },
-      { row: 1, col: 3, alive: false },
-      { row: 1, col: 4, alive: false }
-
-
-    ]
-  },
-  {
-    id:"2",
-    payload: [
-      { row: 2, col: 0, alive: true },
-      { row: 2, col: 1, alive: false },
-      { row: 2, col: 2, alive: false },
-      { row: 2, col: 3, alive: false },
-      { row: 2, col: 4, alive: false }
-
-
-    ]
-  },
-  {
-    id:"3",
-    payload: [
-      { row: 3, col: 0, alive: true },
-      { row: 3, col: 1, alive: false },
-      { row: 3, col: 2, alive: false },
-      { row: 3, col: 3, alive: false },
-      { row: 3, col: 4, alive: false }
-
-
+      { row: 1, col: 1, alive: false }
     ]
   }
-  ,
-  {
-    id:"4",
-    payload: [
-      { row: 4, col: 0, alive: true },
-      { row: 4, col: 1, alive: false },
-      { row: 4, col: 2, alive: false },
-      { row: 4, col: 3, alive: false },
-      { row: 4, col: 4, alive: false }
-
-
-    ]
-  }
+ 
 ]
 
 
+interface gridGeneratorArg{
+  row: number;
+  col:number
+}
 
+const generateEmptyGrid = ({ row, col }: gridGeneratorArg) => {
+  const newGrid: typeof Data = [];
+  for (let i = 0; i < row; i++){
+    let rowData: RowData={id:`${i}`,payload:[]};
+    for (let j = 0; j < col; j++){
+      rowData.payload.push({
+        row: i,
+        col: j,
+        alive:false
+      });
+    }
+    newGrid.push(rowData);
+  }
+  return newGrid;
+}
 
 
 
@@ -85,15 +59,15 @@ let Data: RowData[] = [
       let colToUpdate = rowToUpdate.payload[action.col];
       colToUpdate.alive = !colToUpdate.alive;
       return newState;
-    case "kill":
-      console.log("Before state changing",state);
-     
+    case "alter_grid":
+      let alteredState=  generateEmptyGrid({col:action.col, row:action.row});
+      return alteredState;
+    case "next_generation":     
      const newState1 = _.cloneDeep(state);
       state.forEach((rowItem, index1) => {
         rowItem.payload.forEach((colItem, index2) => {
           //born logic
           if (!colItem.alive) {
-            console.log(`It is dead: (${index1},${index2})`);
             let neighbor1Row = state[index1 - 1];
             let neighbor1 = neighbor1Row?.payload[index2 - 1];
             
@@ -145,7 +119,6 @@ let Data: RowData[] = [
           if (neighbor8?.alive) {
             aliveNeighbors++;
           }
-            console.log("Total Alive Neighbors:",aliveNeighbors)
           if (aliveNeighbors ===3) { //birth
             let rowToUpdate = newState1[index1];
             let colToUpdate = rowToUpdate.payload[index2];
@@ -215,8 +188,6 @@ let Data: RowData[] = [
          
         })
       })
-      console.log("New State to return",newState1);
-
       return newState1;
     default:
       return state;
@@ -229,8 +200,25 @@ let Data: RowData[] = [
 
 
 function App() {
-  const [data, dispatch] = useReducer(gridReducer, Data);
-  
+  const [rowSize, setRowSize] = useState(30);
+  const [colSize, setColSize] = useState(30);
+  const [play, setPlay] = useState(0);
+
+  const [data, dispatch] = useReducer(gridReducer, generateEmptyGrid({row:rowSize, col:colSize}));
+
+
+
+useEffect(() => {
+  if (play === 0) {
+    return;
+  }
+  const interval = setInterval(() => {
+    dispatch({ type: "next_generation" });
+    console.log('This will run every second!');
+  }, 1000);
+  return () => clearInterval(interval);
+
+},[play])
 
 
   const toggleCell = (rows:number,cols:number) => {
@@ -238,16 +226,44 @@ function App() {
   }
   
   const getNextGeneration = () => {
-    dispatch({ type: "kill" });
+    dispatch({ type: "next_generation" });
+  }
+
+  const handleRowSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRowSize((currentValue)=>Number(e.target.value));
+  }
+
+  const handleColSizeChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    setColSize((currentValue)=>Number(e.target.value));
+  }
+
+  const updateGridSize = () => {
+    if (window.confirm("Are you sure you want to proceed? Current grid data will be lost.")) {
+      dispatch({type:"alter_grid",col:colSize, row:rowSize})
+    } 
+  }
+   
+  const onPlayToggle = () => {
+    setPlay(currentVal => {
+      if (currentVal === 0) {
+        return 1;
+      }
+      else {
+        return 0;
+     }
+    });
   }
 
 
   return (
     <>
       <div className="">
-        {console.log(data)}
       <Grid payload={data} toggleCell={toggleCell}  numRows={9} numCols={9} />
-    </div>
+      </div>
+      <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
+      <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input>
+      <button onClick={onPlayToggle}>{play===0?"Play":"Stop" }</button>
+      <button onClick={()=>updateGridSize()}>Change Size</button>
       <button onClick={()=>getNextGeneration()}>Next Generation</button>
       </>
   );
