@@ -1,6 +1,7 @@
 import React, {useReducer, useState, useEffect} from 'react';
 import { Grid, RowData  } from './Containers/Grid';
 import * as _ from "lodash";
+import {Icon } from "./Components/Icons";
 
 
  type Action =
@@ -214,10 +215,8 @@ useEffect(() => {
   }
   const interval = setInterval(() => {
     dispatch({ type: "next_generation" });
-    console.log('This will run every second!');
   }, 1000);
   return () => clearInterval(interval);
-
 },[play])
 
 
@@ -230,14 +229,17 @@ useEffect(() => {
   }
 
   const handleRowSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowSize((currentValue)=>Number(e.target.value));
+    setRowSize((currentValue) =>  Number.isNaN(Number(e.target.value)) ? currentValue : Number(e.target.value));
   }
 
-  const handleColSizeChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    setColSize((currentValue)=>Number(e.target.value));
-  }
+  const handleColSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setColSize((currentValue) => Number.isNaN(Number(e.target.value)) ? currentValue : Number(e.target.value));
+}
 
   const updateGridSize = () => {
+    if (data.length === rowSize && data[0].payload.length === colSize) {
+      return;
+     }
     if (window.confirm("Are you sure you want to proceed? Current grid data will be lost.")) {
       dispatch({type:"alter_grid",col:colSize, row:rowSize})
     } 
@@ -257,14 +259,12 @@ useEffect(() => {
 
   return (
     <>
-      <div className="">
       <Grid payload={data} toggleCell={toggleCell}  numRows={9} numCols={9} />
-      </div>
       <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
       <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input>
-      <button onClick={onPlayToggle}>{play===0?"Play":"Stop" }</button>
-      <button onClick={()=>updateGridSize()}>Change Size</button>
-      <button onClick={()=>getNextGeneration()}>Next Generation</button>
+      <button onClick={updateGridSize}><Icon name={"resize"}/></button>
+      <button onClick={onPlayToggle}>{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
+      <button className="" onClick={getNextGeneration}><Icon name="repeat" /></button>
       </>
   );
 }

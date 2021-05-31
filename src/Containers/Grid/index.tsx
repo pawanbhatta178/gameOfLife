@@ -57,7 +57,7 @@ const GridRow: React.FC<GridRowProps> = ({id,payload, toggleCell}) => {
 }
 
 
-const GridCellStyle = `w-4 h-4 border border-purple-300 `;
+const GridCellStyle = `w-4 h-4 border border-purple-100 `;
 const GridCellAliveStyle = `w-4 h-4 border bg-purple-600 border-purple-300 `;
 
 
