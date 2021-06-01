@@ -3,12 +3,20 @@ import { Grid, RowData  } from './Containers/Grid';
 import * as _ from "lodash";
 import {Icon } from "./Components/Icons";
 import { Logo, logoTypes} from "./Components/Logo";
+import ReactTooltip from "react-tooltip";
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
+import { GiSpeedBoat } from 'react-icons/gi';
 
  type Action =
    | { type: 'toggle_cell', col: number, row: number }
    | { type: 'next_generation' }
    | {type:"alter_grid", col:number, row:number}
+   | {type:"clear_grid"}
 
+   const speedOptions:string[] = [
+    '1x', '2x', '3x'
+  ];
 
 let Data: RowData[] = [
   {
@@ -60,6 +68,11 @@ const generateEmptyGrid = ({ row, col }: gridGeneratorArg) => {
       let colToUpdate = rowToUpdate.payload[action.col];
       colToUpdate.alive = !colToUpdate.alive;
       return newState;
+    case "clear_grid":
+      let row = state.length;
+      let col = state[0].payload.length;
+      let newEmptyState = generateEmptyGrid({col, row});
+      return newEmptyState;
     case "alter_grid":
       let alteredState=  generateEmptyGrid({col:action.col, row:action.row});
       return alteredState;
@@ -204,9 +217,9 @@ function App() {
   const [rowSize, setRowSize] = useState(40);
   const [colSize, setColSize] = useState(30);
   const [play, setPlay] = useState(0);
+  const [playSpeed, setPlaySpeed] = useState(1);
 
   const [data, dispatch] = useReducer(gridReducer, generateEmptyGrid({row:rowSize, col:colSize}));
-
 
 
 useEffect(() => {
@@ -215,9 +228,9 @@ useEffect(() => {
   }
   const interval = setInterval(() => {
     dispatch({ type: "next_generation" });
-  }, 1000);
+  }, 1000/playSpeed);
   return () => clearInterval(interval);
-},[play])
+},[play, playSpeed])
 
 
   const toggleCell = (rows:number,cols:number) => {
@@ -268,6 +281,25 @@ useEffect(() => {
     });
   }
 
+  const onGridClear = () => {
+    dispatch({ type: "clear_grid" });
+  }
+
+  const onSpeedChange = (e:any) => {
+    switch (e.label) {
+      case "1x":
+        setPlaySpeed(1);
+        return;
+      case "2x":
+        setPlaySpeed(2);
+        return;
+      case "3x":
+        setPlaySpeed(3);
+        return;
+      default:
+        return;
+   }
+  }
 
   return (
     <div className="w-screen h-screen relative flex-col">
@@ -281,9 +313,24 @@ useEffect(() => {
         <div className="flex h-full justify-around items-center">
          {/* <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
          <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input> */}
-         <button onClick={updateGridSize}><Icon name={"resize"}/></button>
-         <button onClick={onPlayToggle}>{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
-         <button className="" onClick={getNextGeneration}><Icon name="repeat" /></button>
+         <button onClick={updateGridSize} data-tip data-for="changeGridTip"><Icon name={"resize"}/></button>
+         <button onClick={onPlayToggle} data-tip data-for="playTip">{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
+          <button onClick={getNextGeneration} data-tip data-for="nextGenTip"><Icon name="repeat" /></button>
+          <button onClick={onGridClear} data-tip data-for="clearTip"><Icon name="clear" /></button>
+
+          <ReactTooltip id="clearTip" place="top" effect="solid">
+           Wipes out all the living cells
+          </ReactTooltip>
+          <ReactTooltip id="nextGenTip" place="top" effect="solid">
+           Next Generation
+          </ReactTooltip>
+          <ReactTooltip id="playTip" place="top" effect="solid">
+           Start/Pause
+          </ReactTooltip>
+          <ReactTooltip id="changeGridTip" place="top" effect="solid">
+           Alter Grid
+          </ReactTooltip>
+          <Dropdown options={speedOptions} value={speedOptions[0]} onChange={ onSpeedChange} />
         </div>
 
       </div>
