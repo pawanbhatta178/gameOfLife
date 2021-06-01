@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 
 export interface CellData{
@@ -36,17 +36,18 @@ export interface GridProps{
 
 
 const Grid:React.FC<GridProps> = ({className, payload, numCols, numRows, toggleCell}) => {
-    const tableRef = useRef<HTMLTableElement|null>(null);
 
 
     return (
-        <table ref={tableRef}>
+       
+        <table className="">
             <tbody>
                 {
                     payload?.map((item, index) => <GridRow key={`${item.id}`} {...item} toggleCell={toggleCell }/>)
               }
           </tbody>
-        </table>
+            </table>
+  
     )
 }
 
@@ -57,8 +58,8 @@ const GridRow: React.FC<GridRowProps> = ({id,payload, toggleCell}) => {
 }
 
 
-const GridCellStyle = `w-4 h-4 border border-purple-100 `;
-const GridCellAliveStyle = `w-4 h-4 border bg-purple-600 border-purple-300 `;
+const GridCellStyle = `w-4 h-4   border border-purple-100 `;
+const GridCellAliveStyle = `w-4 h-4  border bg-purple-600 border-purple-300 `;
 
 
 const GridCell: React.FC<GridCellProps> = ({row, col,alive, toggleCell}) => {

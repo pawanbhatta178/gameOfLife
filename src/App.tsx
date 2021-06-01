@@ -2,7 +2,7 @@ import React, {useReducer, useState, useEffect} from 'react';
 import { Grid, RowData  } from './Containers/Grid';
 import * as _ from "lodash";
 import {Icon } from "./Components/Icons";
-
+import { Logo, logoTypes} from "./Components/Logo";
 
  type Action =
    | { type: 'toggle_cell', col: number, row: number }
@@ -201,7 +201,7 @@ const generateEmptyGrid = ({ row, col }: gridGeneratorArg) => {
 
 
 function App() {
-  const [rowSize, setRowSize] = useState(30);
+  const [rowSize, setRowSize] = useState(40);
   const [colSize, setColSize] = useState(30);
   const [play, setPlay] = useState(0);
 
@@ -229,11 +229,23 @@ useEffect(() => {
   }
 
   const handleRowSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowSize((currentValue) =>  Number.isNaN(Number(e.target.value)) ? currentValue : Number(e.target.value));
+    if (Number.isNaN(Number(e.target.value))) {
+      return;
+    }
+    if (Number(e.target.value) > 100) {
+      return;
+    }
+    setRowSize((currentValue) => Number(e.target.value));
   }
 
   const handleColSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setColSize((currentValue) => Number.isNaN(Number(e.target.value)) ? currentValue : Number(e.target.value));
+    if (Number.isNaN(Number(e.target.value))) {
+      return;
+    }
+    if (Number(e.target.value) > 100) {
+      return;
+    }
+    setColSize((currentValue) => Number(e.target.value));
 }
 
   const updateGridSize = () => {
@@ -258,14 +270,25 @@ useEffect(() => {
 
 
   return (
-    <>
-      <Grid payload={data} toggleCell={toggleCell}  numRows={9} numCols={9} />
-      <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
-      <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input>
-      <button onClick={updateGridSize}><Icon name={"resize"}/></button>
-      <button onClick={onPlayToggle}>{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
-      <button className="" onClick={getNextGeneration}><Icon name="repeat" /></button>
-      </>
+    <div className="w-screen h-screen relative flex-col">
+        <div className="h-12 flex items-center justify-center border">
+        <Logo type={logoTypes.SM }/>
+        </div>
+      <div className="flex-1 flex  h-full justify-center">
+        <Grid payload={data} toggleCell={toggleCell} numRows={9} numCols={9} />
+      </div>
+      <div className="absolute bottom-0  h-12 w-full border shadow-sm bg-white">
+        <div className="flex h-full justify-around items-center">
+         {/* <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
+         <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input> */}
+         <button onClick={updateGridSize}><Icon name={"resize"}/></button>
+         <button onClick={onPlayToggle}>{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
+         <button className="" onClick={getNextGeneration}><Icon name="repeat" /></button>
+        </div>
+
+      </div>
+     
+    </div>
   );
 }
 
