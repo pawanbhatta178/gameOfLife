@@ -5,8 +5,7 @@ import {Icon } from "./Components/Icons";
 import { Logo, logoTypes} from "./Components/Logo";
 import ReactTooltip from "react-tooltip";
 import Dropdown from 'react-dropdown';
-import 'react-dropdown/style.css';
-import { GiSpeedBoat } from 'react-icons/gi';
+import './styles/dropdown.css';
 
  type Action =
    | { type: 'toggle_cell', col: number, row: number }
@@ -313,7 +312,7 @@ useEffect(() => {
         <div className="flex h-full justify-around items-center">
          {/* <input placeholder="# Rows" value={rowSize} onChange={handleRowSizeChange}></input>
          <input placeholder="# Cols" value={colSize} onChange={handleColSizeChange}></input> */}
-         <button onClick={updateGridSize} data-tip data-for="changeGridTip"><Icon name={"resize"}/></button>
+         {/* <button onClick={updateGridSize} data-tip data-for="changeGridTip"><Icon name={"resize"}/></button> */}
          <button onClick={onPlayToggle} data-tip data-for="playTip">{play === 0 ? < Icon name={ "play"} />:<Icon name="pause"/> }</button>
           <button onClick={getNextGeneration} data-tip data-for="nextGenTip"><Icon name="repeat" /></button>
           <button onClick={onGridClear} data-tip data-for="clearTip"><Icon name="clear" /></button>

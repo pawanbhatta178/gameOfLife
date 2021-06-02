@@ -50,6 +50,14 @@ const Grid:React.FC<GridProps> = ({className, payload, numCols, numRows, toggleC
         setMousePressed(false);
     }
 
+    const onTouchStart = (e:TouchEvent) => {
+        setMousePressed(true);
+   }
+    
+    const onTouchEnd = (e:TouchEvent) => {
+        setMousePressed(false);
+    }
+
     const onMouseOver = (row:number, col:number) => {
         if (!mousePressed) {
             return;
@@ -64,10 +72,13 @@ const Grid:React.FC<GridProps> = ({className, payload, numCols, numRows, toggleC
         }
         tableRef.current.addEventListener("mousedown", onMouseDown)
         tableRef.current.addEventListener("mouseup", onMouseUp)
-
+        tableRef.current.addEventListener("touchstart", onTouchStart)
+        tableRef.current.addEventListener("touchend", onTouchEnd)
         return () => {
             tableRef.current?.removeEventListener("mousedown", onMouseDown);
             tableRef.current?.removeEventListener("mouseup", onMouseUp);
+            tableRef.current?.removeEventListener("touchstart", onTouchStart)
+            tableRef.current?.removeEventListener("touchend", onTouchEnd)
         }
     },[tableRef])
 
@@ -96,7 +107,7 @@ const GridCellAliveStyle = `w-4 h-4  border bg-purple-600 border-purple-300 `;
 
 
 const GridCell: React.FC<GridCellProps> = ({row, col,alive, toggleCell, onMouseOver}) => {
-    return <td onMouseEnter={(e)=>onMouseOver(row,col)}   onClick={(e)=>toggleCell(row,col) } className={alive?GridCellAliveStyle:GridCellStyle } id={row + "-" + col} ></td>
+    return <td onMouseEnter={(e)=>onMouseOver(row,col)} onTouchMove={(e)=>onMouseOver(row,col)}  onClick={(e)=>toggleCell(row,col) } className={alive?GridCellAliveStyle:GridCellStyle } id={row + "-" + col} ></td>
 }
 
 
